@@ -1,0 +1,36 @@
+version: '3.7' # Указывает версию Docker Compose
+
+services: # Начало секции с сервисами
+    db: # Определение сервиса базы данных
+        container_name: postgres # Имя контейнера для базы данных
+        image: postgres:15.2 # Используемый образ PostgreSQL версии 15.2
+        restart: always # Перезапускать контейнер всегда в случае сбоя
+        environment: # Переменные окружения для настройки базы данных
+            - POSTGRES_USER=${POSTGRES_USER} # Пользователь базы данных
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} # Пароль пользователя базы данных
+            - POSTGRES_DB=${POSTGRES_DB} # Имя базы данных
+        ports: # Настройка портов
+            - 5433:5432 # Проброс порта 5432 контейнера на порт 5433 хоста
+        volumes: # Настройка томов для хранения данных
+            - postgres_data:/var/lib/postgresql/data # Хранение данных PostgreSQL в томе postgres_data
+        networks: # Настройка сетей
+            - backend # Подключение к сети backend
+
+    redis: # Определение сервиса Redis
+        container_name: redis # Имя контейнера для Redis
+        image: redis:5.0 # Используемый образ Redis версии 5.0
+        restart: always # Перезапускать контейнер всегда в случае сбоя
+        ports: # Настройка портов
+            - 6379:6379 # Проброс порта 6379 контейнера на порт 6379 хоста
+        command: redis-server --requirepass ${REDIS_PASSWORD} # Команда для запуска Redis с требованием пароля
+        volumes: # Настройка томов для хранения данных
+            - redis_data:/data # Хранение данных Redis в томе redis_data
+        networks: # Настройка сетей
+            - backend # Подключение к сети backend
+
+volumes: # Определение томов
+    postgres_data: # Том для хранения данных PostgreSQL
+    redis_data: # Том для хранения данных Redis
+
+networks: # Определение сетей
+    backend # Сеть для внутреннего взаимодействия сервисов
